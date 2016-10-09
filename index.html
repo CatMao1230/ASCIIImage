@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<!--
+ ** 將圖片pixel轉成0 **
+========================================================
+https://catmaoblog.wordpress.com/2016/10/10/ascii-image/
+                                              By. CatMao
+-->
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>ASCII Image</title>
+    <style>
+        #div{
+            position:absolute;
+            height: 90%;
+            width: 20%;
+            top:1%;
+            left: 1%;
+            line-height: 18px;
+        }
+        #divMain{
+            position:absolute;
+            top:1%;
+            left: 22%;
+        }
+        #divPixel{
+            line-height: 0.8em;
+            font-size: 7px;
+        }
+        #divButton{
+            position:absolute;
+            width: 20%;
+            top:94%;
+            left:1%;
+            text-align: center;
+        }
+    </style>
+    <script>
+        
+        var canvas;
+        var cxt;
+        var div;
+        var img;
+        var flFile;  
+        var textarea; 
+        var divPixel;
+        
+        window.onload = function() {
+            canvas   = document.getElementById("canvas");
+            cxt      = canvas.getContext("2d");
+            div      = document.getElementById("div");
+            img      = document.getElementById("img");
+            flFile   = document.getElementById("flFile");
+            textarea = document.getElementById("textarea");
+            divPixel = document.getElementById("divPixel");
+        };
+        
+        var Go = function()
+        {
+            if(flFile.files && flFile.files[0])
+            {
+                var reader = new FileReader();
+                reader.onload = function(event){
+                    img.src = event.target.result;
+                    canvas.height = img.height;
+                    canvas.width  = img.width;
+
+                    // 將圖片顯示在Canvas上
+                    cxt.clearRect(0, 0, cxt.width, cxt.height);
+                    canvas.height = img.height;
+                    canvas.width  = img.width;
+                    cxt.drawImage(img, 0, 0);
+                    
+                    // 縮放圖片0.1倍
+                    if(img.height >= 100 && img.width >= 100)
+                    {
+                        var imgWidth  = canvas.width * 0.1;   
+                        var imgHeight = canvas.height * 0.1;    
+
+                        cxt.clearRect(0, 0, canvas.width, canvas.height);  
+                        canvas.width  = imgWidth;
+                        canvas.height = imgHeight;
+                        cxt.drawImage(img, 0, 0, imgWidth, imgHeight);
+                    }
+                    
+                    // 利用getImageData得到像素
+                    var imgData = cxt.getImageData(0, 0, canvas.width, canvas.height);
+                    
+                    var str = "";
+                    
+                    str += "<!DOCTYPE html><html><head><meta charset='UTF-8'><title>Result</title><style>body{line-height: 0.8em; font-size: 7px;}</style></head><body><center>";
+                    
+                    for (var i=0;i<imgData.data.length;i+=4)
+                    {
+                        if(i%(canvas.width*4)==0){
+                            str += "<br>";
+                        }
+                        var r = imgData.data[i];
+                        var g = imgData.data[i+1];
+                        var b = imgData.data[i+2];
+                        str += "<FONT style='color:rgb(" + r.toString() + "," + g.toString() + "," + b.toString() + ")'>0</FONT>";
+                    }
+                    divPixel.innerHTML = str;
+                    textarea.innerHTML = str + "</center></body></html>";
+                }
+                reader.readAsDataURL(flFile.files[0]);
+            }
+        };
+        
+    </script>
+</head>
+<body>
+    <div id="divMain">
+        <center>
+        <div>
+            <img src="" id="img"><br>
+            <canvas id="canvas" style="display: none;"></canvas>
+        </div>
+        <div id="divPixel">
+            
+        </div>
+        </center>
+    </div>
+    <div id="div">
+        <textarea id="textarea" style="width:100%; height:100%;">
+            
+        </textarea>
+    </div><br>
+    <div id="divButton">
+        
+        <input type="file" id="flFile" onchange="Go()">  
+    </div>
+        
+</body>
+</html>
